@@ -1,2 +1,2 @@
-£ PENDULUM SIMULATOR
-the bois- did this work please 
+# PENDULUM SIMULATOR
+test git commits - for now
