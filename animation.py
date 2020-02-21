@@ -9,4 +9,5 @@ def draw():
     plt.axis('scaled')
     plt.show()
 
+##just added this
 draw()
