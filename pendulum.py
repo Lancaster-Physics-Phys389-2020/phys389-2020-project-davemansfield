@@ -2,68 +2,65 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import numpy as np
 
+g=9.8
+dt=0.0025
 
 class Pendulum():
-    def __init__(self,length,mass,angle):
+    def __init__(self,length,mass,initialAngle,steps):
         self.length=length
         self.mass=mass
-        self.angle=angle
+        self.steps=steps
+
+        self.t=np.arange(0,self.steps,dt) #are these two lines nessacerry?
+        self.n=len(self.t) 
+
+        self.theta=np.zeros(self.n)
+        self.velocity=np.zeros(self.n)
+        self.theta[0]=np.radians(initialAngle)
+        self.velocity[0]=np.radians(0.0) 
 
     def calculateCoordiantes(self,angle,length):
         x=np.sin(angle)*length
         y=np.cos(angle)*length
         return x,y
-    
 
-def acceleration(theta):
-    g=9.8
-    l=12.0
-    r=2.0
-    m=3.0
-    a = -(m*g*r/l)*np.sin(theta)
-    return a
+    def calculateAcceleration(self,theta):
+        a = -(g/self.length)*np.sin(theta)
+        return a 
 
-def main():
-    g=9.8#acceleration due to gravity
-    steps=10.0
-    dt=0.0025 #timestep
-    itheta=90.0 #inital angle
-    
-    ##########TEMP###########
-    t=np.arange(0,steps,dt)
-    n=len(t)
+    def calculateNextStep(self,i):
+        k1theta = dt * self.velocity[i]
+        k1v = dt * self.calculateAcceleration(self.theta[i])
 
-    y=np.zeros(n)
-    v=np.zeros(n)
-    y[0]=np.radians(itheta) #set inital value of theta (angle)
-    v[0]=np.radians(0.0) #same for velocity
+        k2theta = dt * (self.velocity[i] + 0.5 * k1v)
+        k2v = dt * self.calculateAcceleration(self.theta[i] + 0.5 * k1theta)
 
-    for i in range(0,n-1):
-        k1y = dt * v[i]
-        k1v = dt * acceleration(y[i])
+        k3theta = dt * (self.velocity[i] + 0.5 * k2v)
+        k3v = dt * self.calculateAcceleration(self.theta[i] + 0.5 * k2theta)
 
-        k2y = dt * (v[i] + 0.5 * k1v)
-        k2v = dt * acceleration(y[i] + 0.5 * k1y)
-
-        k3y = dt * (v[i] + 0.5 * k2v)
-        k3v = dt * acceleration(y[i] + 0.5 * k2y)
-
-        k4y = dt * (v[i] + k3v)
-        k4v = dt * acceleration(y[i] + k3y)
+        k4theta = dt * (self.velocity[i] + k3v)
+        k4v = dt * self.calculateAcceleration(self.theta[i] + k3theta)
 
         #next value of y from wighted avergae - (this may be wrong)
-        y[i+1] = y[i] + (k1y + 2 * k2y + 2 * k3y + k4y) / 6.0 
-        v[i+1] = v[i] + (k1v + 2 * k2v + 2 * k3v + k4v) / 6.0
+        self.theta[i+1] = self.theta[i] + (k1theta + 2 * k2theta + 2 * k3theta + k4theta) / 6.0 
+        self.velocity[i+1] = self.velocity[i] + (k1v + 2 * k2v + 2 * k3v + k4v) / 6.0
+    
+    def plot(self):
+        #plots angle agaist time
+        plt.plot(self.t,self.theta)
+        plt.title('SIMPLE PENDULUM')
+        plt.xlabel('time')
+        plt.ylabel('theta')
+        plt.grid(True)
+        plt.show()
 
-    plt.plot(t,y)
-    plt.title('PEN')
-    plt.xlabel('time')
-    plt.ylabel('angle')
-    plt.grid(True)
-    plt.show()
+
+def main():
+    testpen=Pendulum(12.0,3.0,90.0,10.0)
+    for i in range(0,testpen.n-1):
+        testpen.calculateNextStep(i)
+    testpen.plot()
 
 
-
-main()
-#if __name__ == '__main__':
-    #main()
+if __name__ == '__main__':
+    main()
