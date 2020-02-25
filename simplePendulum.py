@@ -1,17 +1,15 @@
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
 import numpy as np
 
-g=9.8
-dt=0.0025
-
 class Pendulum():
-    def __init__(self,length,mass,initialAngle,steps):
+    g=9.8
+    def __init__(self,length,mass,initialAngle,steps,timestep):
+        self.dt=timestep #timestep
         self.length=length
         self.mass=mass
         self.steps=steps
 
-        self.t=np.arange(0,self.steps,dt) #are these two lines nessacerry?
+        self.t=np.arange(0,self.steps,self.dt) #are these two lines nessacerry?
         self.n=len(self.t) 
 
         self.theta=np.zeros(self.n)
@@ -19,27 +17,30 @@ class Pendulum():
         self.theta[0]=np.radians(initialAngle)
         self.velocity[0]=np.radians(0.0) 
 
-    def calculateCoordiantes(self,angle,length):
-        x=np.sin(angle)*length
-        y=np.cos(angle)*length
-        return x,y
+    def calculateXCoordiante(self,angle):
+        x=np.sin(angle)*self.length
+        return x
+
+    def calculateYCoordinate(self,angle):
+        y=np.cos(angle)*self.length
+        return y
 
     def calculateAcceleration(self,theta):
-        a = -(g/self.length)*np.sin(theta)
+        a = -(self.g/self.length)*np.sin(theta)
         return a 
 
     def calculateNextStep(self,i):
-        k1theta = dt * self.velocity[i]
-        k1v = dt * self.calculateAcceleration(self.theta[i])
+        k1theta = self.dt * self.velocity[i]
+        k1v = self.dt * self.calculateAcceleration(self.theta[i])
 
-        k2theta = dt * (self.velocity[i] + 0.5 * k1v)
-        k2v = dt * self.calculateAcceleration(self.theta[i] + 0.5 * k1theta)
+        k2theta = self.dt * (self.velocity[i] + 0.5 * k1v)
+        k2v = self.dt * self.calculateAcceleration(self.theta[i] + 0.5 * k1theta)
 
-        k3theta = dt * (self.velocity[i] + 0.5 * k2v)
-        k3v = dt * self.calculateAcceleration(self.theta[i] + 0.5 * k2theta)
+        k3theta = self.dt * (self.velocity[i] + 0.5 * k2v)
+        k3v = self.dt * self.calculateAcceleration(self.theta[i] + 0.5 * k2theta)
 
-        k4theta = dt * (self.velocity[i] + k3v)
-        k4v = dt * self.calculateAcceleration(self.theta[i] + k3theta)
+        k4theta = self.dt * (self.velocity[i] + k3v)
+        k4v = self.dt * self.calculateAcceleration(self.theta[i] + k3theta)
 
         #next value of y from wighted avergae - (this may be wrong)
         self.theta[i+1] = self.theta[i] + (k1theta + 2 * k2theta + 2 * k3theta + k4theta) / 6.0 
@@ -53,14 +54,3 @@ class Pendulum():
         plt.ylabel('theta')
         plt.grid(True)
         plt.show()
-
-
-def main():
-    testpen=Pendulum(12.0,3.0,90.0,10.0)
-    for i in range(0,testpen.n-1):
-        testpen.calculateNextStep(i)
-    testpen.plot()
-
-
-if __name__ == '__main__':
-    main()
