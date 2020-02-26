@@ -17,7 +17,10 @@ class Pendulum():
         self.theta[0]=np.radians(initialAngle)
         self.velocity[0]=np.radians(0.0) 
 
-    def calculateXCoordiante(self,angle):
+        self.xi=np.sin(initialAngle)*self.length #inital x and y
+        self.yi=np.cos(initialAngle)*self.length
+
+    def calculateXCoordinate(self,angle): #these may not be needed
         x=np.sin(angle)*self.length
         return x
 
