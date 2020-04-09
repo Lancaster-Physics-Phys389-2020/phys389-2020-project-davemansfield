@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from doublePendulum import *
 import pickle
+import time
 
 '''This script is where the actual computation of the simulation is done. You enter the inital condtions
 and values of mass and lengths and choose weather to update the values via the Runge-Kutta or the velocity verlet.
@@ -11,13 +12,14 @@ The entire simulated data is then saved to a file'''
 
 #this is where you define the intial conditions for the pendulum you want to simulate
 #length is m, mass is kg and angle is degrees
+pendulum=doublePendulum(10,10,1,1,90,5,50,0.01)
 
-pendulum=doublePendulum(10,20,1,1,10,45,20,0.01)
 def runSim(pendulum):
     #here if you want to change the update method then switch which value of update method is commented out, set to 'RK' by default
     
-    #updateMethod='verlet'
-    updateMethod='RK'
+    
+    updateMethod='verlet'
+    #updateMethod='RK'
    
     #creates a file name that has all the intial condtions in so it is easy to find the file you need
     fileName=('DPsim-L1-'+str(pendulum.length1)+'-L2-'+str(pendulum.length2)+'-M1-'+str(pendulum.mass1)+'-M2-'+str(pendulum.mass2)+'-T1-'+str(pendulum.theta1i)+'-T2-'+str(pendulum.theta2i)+'-timestep-'+str(pendulum.dt)+'-method-'+updateMethod)
@@ -46,9 +48,9 @@ def runSim(pendulum):
             pendulum.calculateNextStepRK()
         
         #calculate total kinetic and potential energy of system
-        Ek=1/2*pendulum.mass1*(pendulum.velocity1**2)+1/2*pendulum.mass2*(pendulum.velocity2**2)
-        Ep=pendulum.g*(pendulum.mass1*-pendulum.y1+pendulum.mass2*-pendulum.y2)
-        
+        Ek=0.5*(pendulum.mass1+pendulum.mass2)*(pendulum.velocity1**2+pendulum.velocity2**2)
+        Ep=(pendulum.mass1+pendulum.mass2)*pendulum.g*(pendulum.y1+pendulum.y2)
+
         #fills the lists 
         timedata.append(pendulum.t[i])
         theta1data.append(pendulum.theta1)
@@ -67,5 +69,5 @@ def runSim(pendulum):
     #writes to the file using pickle package
     with open('pendulumData/%s.pkl'% fileName,'wb') as output:
         pickle.dump(simulationData, output, pickle.HIGHEST_PROTOCOL)
-    
+
 runSim(pendulum)

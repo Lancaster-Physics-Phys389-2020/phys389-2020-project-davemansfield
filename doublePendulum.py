@@ -1,4 +1,5 @@
 import numpy as np
+import sys
 
 ''' This class creates a double pendulum objects that stores all the important values as they update
 there are 2 diffrernt types of iterativve methods, the velocity verlet and the Runge-Kutta methods, that 
@@ -36,13 +37,21 @@ class doublePendulum():
         
         '''Acceleration calculation for the first bob takes arguments theta1 and theta2 as they are the 
         corrected values calculated in the Runge-Kutta / verlet method'''
+        #the try except statements here stop a divsion by zero error when either mass1 or length1 are set to 0
+        #it is only neccecerry to have these statemnets in calculateAccelertation1 as it is ALWAYS called first.
+        try:
+            A=self.mass2/self.mass1
+        except ZeroDivisionError:
+            sys.exit('MASS 1 CANNOT BE 0, SETTING MASS 1 TO 1')
         
-        A=self.mass2/self.mass1
-        B=self.length2/self.length1
-        G=self.g/self.length1
+        try:
+            B=self.length2/self.length1
+            G=self.g/self.length1
+        except ZeroDivisionError:
+            sys.exit('LENGTH 1 CANNOT BE 0, SETTING LENGTH 1 TO 1')
         a = -(((1+A)*G*np.sin(theta1)) + (A*B*self.velocity2**2*np.sin(theta1-theta2)) + (A*np.cos(theta1-theta2)*(self.velocity1**2*np.sin(theta1-theta2) - G*np.sin(theta1)))) / (1+A*(np.sin(theta1-theta2)**2))
-        return a 
-    
+        return a
+
     def calculateAcceleration2(self,theta1,theta2):
         #Acceleration calculation for the seocnd bob same srguments as calculateAcceleration1
         A=self.mass2/self.mass1
@@ -54,7 +63,19 @@ class doublePendulum():
     def calculateNextStepVerlet(self):
         #this is the velocity verlet iteration method for updating the values of angle and velocity
         self.theta1=self.theta1+(self.velocity1*self.dt+0.5*self.calculateAcceleration1(self.theta1,self.theta2)*self.dt*self.dt)
+        if self.theta1>=(np.pi*2):
+            self.theta1=self.theta1-(np.pi*2)
+        elif self.theta1<=-(np.pi*2):
+            self.theta1=self.theta1+(np.pi*2)
+        
+
         self.theta2=self.theta2+(self.velocity2*self.dt+0.5*self.calculateAcceleration2(self.theta1,self.theta2)*self.dt*self.dt)
+        if self.theta1>=(np.pi*2):
+            self.theta1=self.theta1-(np.pi*2)
+        elif self.theta1<=-(np.pi*2):
+            self.theta1=self.theta1+(np.pi*2)
+        
+        
         self.velocity1=self.velocity1+self.calculateAcceleration1(self.theta1,self.theta2)*self.dt
         self.velocity2=self.velocity2+self.calculateAcceleration2(self.theta1,self.theta2)*self.dt
 
@@ -87,10 +108,23 @@ class doublePendulum():
         k4v2 = self.dt * self.calculateAcceleration2((self.theta1 + k3theta1),(self.theta2+k3theta2))
 
         #Increse step by calculating a weighted avergae
+        #the if statements here make sure that theta1 and theta2 are always between 0 and 2pi
+        #since the process just adds they would go above this value which makes graphs hard to interpret
         self.theta1 = self.theta1 + (k1theta1 + 2 * k2theta1 + 2 * k3theta1 + k4theta1) / 6.0
+        if self.theta1>=(np.pi*2):
+            self.theta1=self.theta1-(np.pi*2)
+        elif self.theta1<=-(np.pi*2):
+            self.theta1=self.theta1+(np.pi*2)
+        
         self.theta2 = self.theta2 + (k1theta2 + 2 * k2theta2 + 2 * k3theta2 + k4theta2) / 6.0
+        if self.theta2>=(np.pi*2):
+            self.theta2=self.theta2-(np.pi*2)
+        elif self.theta2<=-(np.pi*2):
+            self.theta2=self.theta2+(np.pi*2)
+        
         self.velocity1 = self.velocity1 + (k1v1 + 2 * k2v1 + 2 * k3v1 + k4v1) / 6.0
         self.velocity2 = self.velocity2 + (k1v2 + 2 * k2v2 + 2 * k3v2 + k4v2) / 6.0
+
         
         #Update the cartisain coordinates
         self.x1=np.sin(self.theta1)*self.length1

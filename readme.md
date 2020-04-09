@@ -32,3 +32,19 @@ This is where plots can be made. It reads data from one or more simulation data 
 doublePendulumAnimation.py
 ------------------------
 This file does not need to be changed much by the user. You can choose weather or not to have fading trails on the bobs. On line 60 change fileToRead to the name of the data file from runDoublePendulumSimulation you want to see animated.
+
+createPlots.py
+---------------
+This module is not part of the working simulation it just shows some custom methods I made to run anaysis and give an idea of how the project can be used.
+
+testModules
+----------
+These contain the pytest modules for the simulation. Note these must be moved to the same directory as the files they are testing for them to execute without error
+
+simplePendulum
+---------
+contains three files, a prototype of a simple pendulum system an animation for it and a module to plot its angle. This isnt a final piece of work and is inlcuded to show where the actual simulation began.
+
+timeToFlip
+---------
+contains the code and data used to produce the graph of how long it takes for a pendulum to flip. Note this graph takes alot of computuatinal power and time to run since it has to do so many calculations and independent simulations.

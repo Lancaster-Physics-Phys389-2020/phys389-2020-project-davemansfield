@@ -8,7 +8,7 @@ the x and y coordinate of the bob as it moves showing its trail behind. It is no
 runDoublePendulumSimulation.py with a set of inital condtions to save the neccacerry data
 '''
 
-def main(x1,x2,y1,y2,constants):
+def main(time,x1,x2,y1,y2,constants):
     #main is passed these arguments which are all lists and are the computed values for all steps of the double pendulum
     #calcuate the size of the screen so all sizes of pendulum can fit
     screenSize=constants[0]+constants[1]+5
@@ -42,6 +42,8 @@ def main(x1,x2,y1,y2,constants):
         arm1.set_data([0,x1[i]],[0,y1[i]])
         bob2.set_data(x2data[-300:],y2data[-300:])
         arm2.set_data([x1[i],x2[i]],[y1[i],y2[i]])
+        if i==(len(time)-2):
+            animation.event_source.stop()
 
         return bob1, arm1, bob2, arm2
 
@@ -53,8 +55,9 @@ def main(x1,x2,y1,y2,constants):
 #doublePendulum(length1,length2,mass1,mass2,initailAngle2,initialAngle2,steps,timestep)
 
 #the name of the file contaitnng the simualtion data you want to see animnated
-fileToRead='DPsim-L1-10-L2-20-M1-1-M2-1-T1-10-T2-45-timestep-0.01-method-RK'
+fileToRead='DPsim-L1-10-L2-10-M1-1-M2-1-T1-90-T2-5-timestep-0.01-method-verlet'
 with open('pendulumData/%s.pkl'% fileToRead,'rb') as input:
     pendulum=pickle.load(input)
 
-main(pendulum[5],pendulum[6],pendulum[7],pendulum[8],pendulum[11])
+#all the data was stored to an array which contained lists this is just to make reading and writing to files faster
+main(pendulum[0],pendulum[5],pendulum[6],pendulum[7],pendulum[8],pendulum[11])
